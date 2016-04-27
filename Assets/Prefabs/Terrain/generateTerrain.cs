@@ -6,21 +6,22 @@ public class generateTerrain : MonoBehaviour {
 	public Transform road01;
 
 	public Transform platform;
-	public Transform exitDoor;
+	public ExitDoor exitDoor;
 
 	GameObject referencePerso;
 	GameObject terrain;
-	int limitPos;
 
 	Vector3 positionCurrentPlatform; // The position of the folder in the world
 
-	GameObject nextPlateform; // The futur folder plateform to reach
+	Transform nextPlateform; // The futur folder plateform to reach
 
 	string nameNextFolder;
 	float angleNextFolder;
 	// From norm(posPlayer - posCurrentPlatform), we can deduce the distance of the player to the plateform
 	float nextDistance; // To make the next plateform appear
 	bool middleReach;
+
+	float radiusPlatform = 50.0f; // TODO: Extract that dynamically
 
 
 	/**
@@ -32,7 +33,8 @@ public class generateTerrain : MonoBehaviour {
 		Debug.Log(folderName);
 
 		// Create the main platform
-		nextPlateform = Instantiate(platform, position, Quaternion.identity) as GameObject;
+		nextPlateform = Instantiate(platform, position, Quaternion.identity) as Transform;
+		Debug.Log(nextPlateform);
 
 		// Extract all subfolders list
 		System.IO.DirectoryInfo rootDir = new System.IO.DirectoryInfo(folderName);
@@ -42,24 +44,53 @@ public class generateTerrain : MonoBehaviour {
 		int nbExit = dirsInfo.Length; // (+1 for parent ?)
 		int currentExit = 0; // (+1 for parent ?)
 		foreach (DirectoryInfo dir in dirsInfo) { // TODO: Put a limit. For now, lets hope ther is not 100 subfolder
-			Debug.Log(dir);
-			currentExit++;
+			ExitDoor nextDoor = Instantiate(exitDoor, Vector3.zero, Quaternion.identity) as ExitDoor;
 
-			// Each one with a particular angle (float) and destination (string)
+			float theta = 2 * Mathf.PI * (currentExit + 1) / nbExit; // The angle of the door (equially divided among the circle)
+
+			// Convertion from cylinder to carthesian
+			Vector3 posDoor = new Vector3(
+				radiusPlatform * Mathf.Cos( theta ),
+				0.26f, // Small elevation
+				radiusPlatform * Mathf.Sin( theta ));
+
+			nextDoor.transform.parent = nextPlateform; // Set parent
+			nextDoor.transform.localPosition = posDoor; // Pos relative to parent
+			nextDoor.transform.Rotate(new Vector3(0, 90 -360*theta/(2*Mathf.PI),0));
+
+			// Set the text
+			nextDoor.GetComponentInChildren<TextMesh>().text = dir.Name + "/";
+
+			// Rotate the door correctly
+			//Vector3 localPos = nextDoor.InverseTransformDirection(Vector3.zero-nextDoor.position);
+			//localPos.y = 0;
+			//Vector3 lookPos = transform.position + transform.TransformDirection(localPos);
+			//nextDoor.LookAt(lookPos);
+
+			nextDoor.terrainManager = this;
+
+			nextDoor.folderName = dir.FullName;
+			nextDoor.angle = theta;
+
+
+			currentExit++;
 		}
 
 		// What about parent (And what about we try to leave the application folder)
 	}
 
-	void arriveOnFolderPlatform() {
+	public void launchExitMode(ExitDoor exitDoor) {
+		Debug.Log(exitDoor.folderName);
+		Debug.Log(exitDoor.angle);
 		
 	}
 
 	// Use this for initialization
 	void Start () {
+		//exitDoor = Resources.Load("ExitDoor") as ExitDoor;
+
 		terrain = GameObject.Find("Terrain"); // Get the terrain
 		referencePerso = GameObject.Find("Car"); // Get the player
-		limitPos = 0;
 
 		// Loading the terrain
 		loadFolder(Application.dataPath, Vector3.zero);
@@ -89,5 +120,11 @@ public class generateTerrain : MonoBehaviour {
 			Debug.Log("d");
 			Debug.Log(limitPos);
 		}*/
+	}
+
+	void OnTriggerEnter(Collider other)
+	{
+		Debug.Log("Collision triggered! Parent!!!");
+		// do something
 	}
 }
