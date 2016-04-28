@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 public class generateTerrain : MonoBehaviour {
@@ -16,12 +17,8 @@ public class generateTerrain : MonoBehaviour {
 	GameObject currentPlateform; // Reference to the current platform (to destroy it)
 	GameObject nextPlateform; // Reference to the created platform
 
-	Vector3 positionNextPlatform; // The futur folder plateform to reach
-	string nameNextFolder;
 	float angleNextFolder;
-	// From norm(posPlayer - posCurrentPlatform), we can deduce the distance of the player to the plateform
-	float nextDistance; // To make the next plateform appear
-	//bool middleReach;
+	float nextDistance; // To make the next plateform appear (We can compare to the distance of the player to the plateform)
 
 	float radiusPlatform = 50.0f; // TODO: Extract that dynamically
 	float distanceBetweenPlateforms = 100.0f;
@@ -39,26 +36,35 @@ public class generateTerrain : MonoBehaviour {
 			r * Mathf.Sin( theta ));
 	}
 
+	List<DirectoryInfo> toList(DirectoryInfo[] array) {
+		List<DirectoryInfo> list = new List<DirectoryInfo>(array.Length + 1);
+
+		foreach (DirectoryInfo t in array) {
+			list.Add (t);
+		}
+
+		return list;
+	}
+
 	/**
 	 * We create a new platform with x exit for each subfolder (+1 for parent)
 	 * 
 	 * */
 	void loadFolder(string folderName, Vector3 position) {
-		Debug.Log("Try loading folder...");
-		Debug.Log(folderName);
+		Debug.Log("Loading folder " + folderName);
 
 		// Create the main platform
 		nextPlateform = Instantiate(platform, position, Quaternion.identity) as GameObject;
-		Debug.Log(nextPlateform);
 
 		// Extract all subfolders list
 		System.IO.DirectoryInfo rootDir = new System.IO.DirectoryInfo(folderName);
-		DirectoryInfo[] dirsInfo = rootDir.GetDirectories();
+		List<DirectoryInfo> dirsInfo = toList(rootDir.GetDirectories());
+		dirsInfo.Add (rootDir.Parent); // Add the parent directory
 
 		// Create one exit by subfolder (".." for parent)
-		int nbExit = dirsInfo.Length; // (+1 for parent ?)
+		int nbExit = dirsInfo.Count; // (The parent is already included)
 		int currentExit = 0; // (+1 for parent ?)
-		foreach (DirectoryInfo dir in dirsInfo) { // TODO: Put a limit. For now, lets hope ther is not 100 subfolder
+		foreach (DirectoryInfo dir in dirsInfo) { // TODO: Put a limit. For now, lets hope there is not 100 subfolder
 			ExitDoor nextDoor = Instantiate(exitDoor, Vector3.zero, Quaternion.identity) as ExitDoor;
 
 			float theta = 2 * Mathf.PI * (currentExit + 1) / nbExit; // The angle of the door (equially divided among the circle)
@@ -71,24 +77,20 @@ public class generateTerrain : MonoBehaviour {
 			nextDoor.transform.Rotate(new Vector3(0, 90 -360*theta/(2*Mathf.PI),0));
 
 			// Set the text
-			nextDoor.GetComponentInChildren<TextMesh>().text = dir.Name + "/";
-
-			// Rotate the door correctly
-			//Vector3 localPos = nextDoor.InverseTransformDirection(Vector3.zero-nextDoor.position);
-			//localPos.y = 0;
-			//Vector3 lookPos = transform.position + transform.TransformDirection(localPos);
-			//nextDoor.LookAt(lookPos);
+			if (rootDir.Parent.FullName == dir.FullName) { // Probably a faster way (compare reference ?, use currentExit)
+				nextDoor.GetComponentInChildren<TextMesh>().text = "../";
+			} else {
+				nextDoor.GetComponentInChildren<TextMesh>().text = dir.Name + "/";
+			}
 
 			nextDoor.terrainManager = this;
-
 			nextDoor.folderName = dir.FullName;
 			nextDoor.angle = theta;
-
 
 			currentExit++;
 		}
 
-		// What about parent (And what about we try to leave the application folder)
+		// What about we try to leave the application folder ??
 	}
 
 	/**
@@ -96,20 +98,21 @@ public class generateTerrain : MonoBehaviour {
 	 * If yes, initialize nameNextFolder, angle & cie >> go in travelMode
 	 * */
 	public void launchExitMode(ExitDoor exitDoor) {
-		Debug.Log(exitDoor.folderName);
-		Debug.Log(exitDoor.angle);
+		Debug.Log("Exit through: " + exitDoor.folderName);
 
 		gameMode = GameMode.TravelMode;
 
-		nameNextFolder = exitDoor.folderName;
+		string nameNextFolder = exitDoor.folderName;
 		angleNextFolder = exitDoor.angle;
 
-		positionNextPlatform = currentPlateform.transform.position + 
+		Vector3 positionNextPlatform =  // The futur folder plateform to reach
+			currentPlateform.transform.position + 
 			toCarthesian(2*radiusPlatform + distanceBetweenPlateforms, angleNextFolder,0);
 
 		nextDistance = radiusPlatform; // Should create a new plateform imediatelly
 		//middleReach = false;
 
+		Destroy(nextPlateform); // Avoid creating the plateform twice
 		loadFolder (nameNextFolder, positionNextPlatform);
 	}
 
@@ -119,14 +122,13 @@ public class generateTerrain : MonoBehaviour {
 
 		//exitDoor = Resources.Load("ExitDoor") as ExitDoor;
 
-		terrain = GameObject.Find("Terrain"); // Get the terrain
+		//terrain = GameObject.Find("Terrain"); // Get the terrain (useless ?? no parenting)
 		referencePlayer = GameObject.Find("Car"); // Get the player
 
 		// Loading the terrain
 		loadFolder(Application.dataPath, Vector3.zero);
 		currentPlateform = nextPlateform; // We are currently on the platform we just created
-
-		// TODO: Initialize currentFolder, currentFolderPos, ...
+		nextPlateform = null; // Otherwise, the current platform could be destroyed when destroying this (when falling)
 	}
 	
 	// Update is called once per frame
@@ -142,12 +144,15 @@ public class generateTerrain : MonoBehaviour {
 				newPortion.transform.Rotate(new Vector3(0, 90 -360*angleNextFolder/(2*Mathf.PI),0));
 				newPortion.transform.parent = currentPlateform.transform;
 				nextDistance += roadLength;
-				//Debug.Log(nextRoadPosition);
 			}
 			if (currentDistance > radiusPlatform + distanceBetweenPlateforms + roadLength/2) { // We reach our destination
-				Debug.Log("Platform reached");
+				Debug.Log("Platform reached, try destroying previous one");
+				Debug.Log(currentPlateform.transform.position);
+				Debug.Log(nextPlateform.transform.position);
+
 				Destroy(currentPlateform);
 				currentPlateform = nextPlateform;
+				nextPlateform = null;
 
 				gameMode = GameMode.ExplorationMode;
 
@@ -156,7 +161,9 @@ public class generateTerrain : MonoBehaviour {
 		}
 
 		// Check if the player die (TODO: go to trash)
-		if (referencePlayer.transform.position.y < -5.0f) {
+		if (referencePlayer.transform.position.y < -5.0f || Input.GetKeyUp(KeyCode.R)) {
+			gameMode = GameMode.ExplorationMode; // Going back in exploration mode
+
 			// Reset position
 			referencePlayer.transform.position = currentPlateform.transform.position;
 			referencePlayer.transform.rotation = new Quaternion ();
@@ -166,7 +173,7 @@ public class generateTerrain : MonoBehaviour {
 			referencePlayer.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
 
 			// Avoid creation multiple times
-			Destroy(nextPlateform);
+			//Destroy(nextPlateform); // Not necessary (is reconstruct when we cross any door)
 		}
 	}
 
