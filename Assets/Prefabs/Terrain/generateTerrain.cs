@@ -3,18 +3,21 @@ using System.Collections;
 using System.IO;
 
 public class generateTerrain : MonoBehaviour {
-	public Transform road01;
+	enum GameMode {TravelMode, ExplorationMode};
+	GameMode gameMode;
 
+	public Transform road01;
 	public Transform platform;
 	public ExitDoor exitDoor;
 
-	GameObject referencePerso;
+	GameObject referencePlayer;
 	GameObject terrain;
 
+	Transform currentPlateform; // Reference to the current platform (to destroy it)
+	Transform nextPlateform; // Reference to the created platform
+
 	Vector3 positionCurrentPlatform; // The position of the folder in the world
-
-	Transform nextPlateform; // The futur folder plateform to reach
-
+	Vector3 positionNextPlatform; // The futur folder plateform to reach
 	string nameNextFolder;
 	float angleNextFolder;
 	// From norm(posPlayer - posCurrentPlatform), we can deduce the distance of the player to the plateform
@@ -22,7 +25,24 @@ public class generateTerrain : MonoBehaviour {
 	bool middleReach;
 
 	float radiusPlatform = 50.0f; // TODO: Extract that dynamically
+	float distanceBetweenPlateforms = 100.0f;
+	float roadLength = 20.0f;
 
+
+	/**
+	 * Math utilities fcts
+	 * 
+	 * */
+	Vector3 toCarthesian(float r, float theta, float y, Vector3 origin) {
+		return origin + toCarthesian(r, theta, y);
+	}
+
+	Vector3 toCarthesian(float r, float theta, float y) {
+		return new Vector3(
+			r * Mathf.Cos( theta ),
+			y,
+			r * Mathf.Sin( theta ));
+	}
 
 	/**
 	 * We create a new platform with x exit for each subfolder (+1 for parent)
@@ -48,11 +68,8 @@ public class generateTerrain : MonoBehaviour {
 
 			float theta = 2 * Mathf.PI * (currentExit + 1) / nbExit; // The angle of the door (equially divided among the circle)
 
-			// Convertion from cylinder to carthesian
-			Vector3 posDoor = new Vector3(
-				radiusPlatform * Mathf.Cos( theta ),
-				0.26f, // Small elevation
-				radiusPlatform * Mathf.Sin( theta ));
+			// Convertion from cylinder to carthesian (with small elevation)
+			Vector3 posDoor = toCarthesian(radiusPlatform, theta, 0.26f);
 
 			nextDoor.transform.parent = nextPlateform; // Set parent
 			nextDoor.transform.localPosition = posDoor; // Pos relative to parent
@@ -79,30 +96,66 @@ public class generateTerrain : MonoBehaviour {
 		// What about parent (And what about we try to leave the application folder)
 	}
 
+	/**
+	 * Check the collisions (are we exiting the platform ?)
+	 * If yes, initialize nameNextFolder, angle & cie >> go in travelMode
+	 * */
 	public void launchExitMode(ExitDoor exitDoor) {
 		Debug.Log(exitDoor.folderName);
 		Debug.Log(exitDoor.angle);
-		
+
+		gameMode = GameMode.TravelMode;
+
+		nameNextFolder = exitDoor.folderName;
+		angleNextFolder = exitDoor.angle;
+
+		positionCurrentPlatform = currentPlateform.position;
+		positionNextPlatform = positionCurrentPlatform + toCarthesian(radiusPlatform + distanceBetweenPlateforms,angleNextFolder,0 , positionCurrentPlatform);
+
+		nextDistance = radiusPlatform; // Should create a new plateform imediatelly
+		middleReach = false;
+
+		loadFolder (nameNextFolder, positionNextPlatform);
 	}
 
 	// Use this for initialization
 	void Start () {
+		gameMode = GameMode.ExplorationMode; // We start on the big platform
+
 		//exitDoor = Resources.Load("ExitDoor") as ExitDoor;
 
 		terrain = GameObject.Find("Terrain"); // Get the terrain
-		referencePerso = GameObject.Find("Car"); // Get the player
+		referencePlayer = GameObject.Find("Car"); // Get the player
 
 		// Loading the terrain
 		loadFolder(Application.dataPath, Vector3.zero);
+		currentPlateform = nextPlateform; // We are currently on the platform we just created
 
 		// TODO: Initialize currentFolder, currentFolderPos, ...
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		// Check the collisions (are we exiting the platform ?)
-		// If yes, initialize nameNextFolder, angle & cie >> go in travelMode
+		if (gameMode == GameMode.TravelMode) {
+			// Compute current distance car-currentPlateform
+			float currentDistance = Vector3.Distance(referencePlayer.transform.position, currentPlateform.transform.position);
+			if (currentDistance > nextDistance - roadLength/2) { // We need to add a new plateform
+				//Debug.Log("Creation new portion:");
+				Vector3 nextRoadPosition = toCarthesian(nextDistance, angleNextFolder, 0, positionCurrentPlatform);
+				Transform newPortion = Instantiate(road01, nextRoadPosition, Quaternion.identity) as Transform;
+				newPortion.transform.Rotate(new Vector3(0, 90 -360*angleNextFolder/(2*Mathf.PI),0));
+				newPortion.transform.parent = currentPlateform.transform;
+				nextDistance += roadLength;
+				Debug.Log(nextRoadPosition);
+			}
+			if (currentDistance > radiusPlatform + distanceBetweenPlateforms) { // We reach our destination
+				Debug.Log("Platform reached");
+				Destroy(currentPlateform);
+				currentPlateform = nextPlateform;
 
+				gameMode = GameMode.ExplorationMode;
+			}
+		}
 		// If we are in travel mode, we check the distance of the player relative to the
 		// current platform
 			// If greater than next distance: Add new road portion
