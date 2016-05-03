@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityEngine.Networking;
+using UnityStandardAssets;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -9,7 +10,6 @@ namespace UnityStandardAssets.Vehicles.Car
 	public class CarUserControl : NetworkBehaviour
     {
         private CarController m_Car; // the car controller we want to use
-
 
         private void Awake()
         {
@@ -20,7 +20,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
         private void FixedUpdate()
         {
-			if(!isLocalPlayer)
+			GameObject go = GameObject.Find ("Vars");
+			if(!go.GetComponent<Vars> ().isWheel)
 			{
 				return;
 			}
