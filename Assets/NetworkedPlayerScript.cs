@@ -38,7 +38,7 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 #if !MOBILE_INPUT
 		handbrake = CrossPlatformInputManager.GetAxis("Jump");
 #else
-		m_Car.Move(h, v, v, 0f);
+		//m_Car.Move(h, v, v, 0f);
 #endif
 		CmdLol(h, v, handbrake);
 	}
