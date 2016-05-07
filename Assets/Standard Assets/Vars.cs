@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class Vars : MonoBehaviour {
+public class Vars : NetworkBehaviour {
 
 	public bool isWheel = false;
 
@@ -18,5 +19,21 @@ public class Vars : MonoBehaviour {
 	public void setIsWheel(bool isWheel)
 	{
 		this.isWheel = isWheel;
+	}
+
+	public void loadClientScene()
+	{
+		Application.LoadLevel("clientScene");
+	}
+
+	public void sendTheLolMessage()
+	{
+		CmdLol ();
+	}
+
+	[Command]
+	void CmdLol()
+	{
+		Debug.Log ("From cmdLol");
 	}
 }
