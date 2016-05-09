@@ -25,15 +25,4 @@ public class Vars : NetworkBehaviour {
 	{
 		Application.LoadLevel("clientScene");
 	}
-
-	public void sendTheLolMessage()
-	{
-		CmdLol ();
-	}
-
-	[Command]
-	void CmdLol()
-	{
-		Debug.Log ("From cmdLol");
-	}
 }
