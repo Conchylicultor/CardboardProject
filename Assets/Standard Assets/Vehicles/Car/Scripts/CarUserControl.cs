@@ -1,13 +1,12 @@
 using System;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
-using UnityEngine.Networking;
 using UnityStandardAssets;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
     [RequireComponent(typeof (CarController))]
-	public class CarUserControl : NetworkBehaviour
+	public class CarUserControl : MonoBehaviour
     {
         private CarController m_Car; // the car controller we want to use
 
