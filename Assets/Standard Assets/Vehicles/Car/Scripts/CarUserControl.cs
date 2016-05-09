@@ -1,14 +1,14 @@
 using System;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
+using UnityStandardAssets;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
     [RequireComponent(typeof (CarController))]
-    public class CarUserControl : MonoBehaviour
+	public class CarUserControl : MonoBehaviour
     {
         private CarController m_Car; // the car controller we want to use
-
 
         private void Awake()
         {
@@ -19,6 +19,12 @@ namespace UnityStandardAssets.Vehicles.Car
 
         private void FixedUpdate()
         {
+			GameObject go = GameObject.Find ("Vars");
+			if(!go.GetComponent<Vars> ().isWheel)
+			{
+				return;
+			}
+			
             // pass the input to the car!
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
             float v = CrossPlatformInputManager.GetAxis("Vertical");
