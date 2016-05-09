@@ -16,7 +16,7 @@ namespace UnityStandardAssets.Vehicles.Car
         KPH
     }
 
-    public class CarController : MonoBehaviour
+	public class CarController : MonoBehaviour
     {
         [SerializeField] private CarDriveType m_CarDriveType = CarDriveType.FourWheelDrive;
         [SerializeField] private WheelCollider[] m_WheelColliders = new WheelCollider[4];
@@ -127,7 +127,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
 
         public void Move(float steering, float accel, float footbrake, float handbrake)
-        {
+        {			
             for (int i = 0; i < 4; i++)
             {
                 Quaternion quat;
