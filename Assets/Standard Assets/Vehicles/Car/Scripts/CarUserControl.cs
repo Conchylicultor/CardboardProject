@@ -20,8 +20,14 @@ namespace UnityStandardAssets.Vehicles.Car
         private void FixedUpdate()
         {
 			GameObject go = GameObject.Find ("Vars");
-			if(!go.GetComponent<Vars> ().isWheel)
-			{
+			try {
+				go.GetComponent<Vars> ();
+				if(!go.GetComponent<Vars> ().isWheel)
+				{
+					return;
+				}
+			} catch(NullReferenceException e) {
+				// The network is not yet initialized, so just return
 				return;
 			}
 			
