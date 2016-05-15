@@ -11,6 +11,9 @@ public class generateTerrain : MonoBehaviour {
 	public GameObject platform;
 	public ExitDoor exitDoor;
 
+	public GameObject refClara;
+	public GameObject refKevin;
+
 	GameObject referencePlayer;
 	GameObject terrain;
 
@@ -24,6 +27,7 @@ public class generateTerrain : MonoBehaviour {
 	float distanceBetweenPlateforms = 100.0f;
 	float roadLength = 20.0f;
 
+	System.Random random = new System.Random();
 
 	/**
 	 * Math utilities fcts
@@ -46,6 +50,11 @@ public class generateTerrain : MonoBehaviour {
 		return list;
 	}
 
+	float randFloat(float min, float max)
+	{
+		return (float)(min + (random.NextDouble() * (max - min)));
+	}
+
 	/**
 	 * We create a new platform with x exit for each subfolder (+1 for parent)
 	 * 
@@ -60,6 +69,25 @@ public class generateTerrain : MonoBehaviour {
 		System.IO.DirectoryInfo rootDir = new System.IO.DirectoryInfo(folderName);
 		List<DirectoryInfo> dirsInfo = toList(rootDir.GetDirectories());
 		dirsInfo.Add (rootDir.Parent); // Add the parent directory
+
+		// Instanciate one Kevin and Clara by files
+		foreach (FileInfo file in rootDir.GetFiles()) {
+			// Generate 2 random positions
+			float posR = randFloat(0.0f, radiusPlatform);
+			float posTheta = randFloat(0.0f, 2*Mathf.PI);
+
+			Vector3 positionPers = toCarthesian(posR, posTheta, 2.15f);
+
+			GameObject nextPers;
+			if (random.Next () % 2 == 0) {
+				nextPers = Instantiate (refClara, Vector3.zero, Quaternion.identity) as GameObject;
+			} else {
+				nextPers = Instantiate (refKevin, Vector3.zero, Quaternion.identity) as GameObject;
+			}
+
+			nextPers.transform.parent = nextPlateform.transform;
+			nextPers.transform.localPosition = positionPers;
+		}
 
 		// Create one exit by subfolder (".." for parent)
 		int nbExit = dirsInfo.Count; // (The parent is already included)
