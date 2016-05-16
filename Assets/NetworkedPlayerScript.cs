@@ -11,9 +11,13 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log ("in start");
+
 		vars = GameObject.Find ("Vars").GetComponent<Vars> ();
 		if(!vars.isWheel)
 		{
+			Debug.Log ("is not a wheel");
+
 			// We are the car, so let's load the car in the local var
 			GameObject car = GameObject.Find ("Car");
 			m_Car = car.GetComponent<CarController>();
@@ -40,12 +44,14 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 #else
 		//m_Car.Move(h, v, v, 0f);
 #endif
-		CmdLol(h, v, handbrake);
+		RpcLol(h, v, handbrake);
 	}
 
-	[Command]
-	void CmdLol(float h, float v, float handbrake)
+	[ClientRpc]
+	void RpcLol(float h, float v, float handbrake)
 	{
-		m_Car.Move(h, v, v, handbrake);
+		if (!vars.isWheel) {
+			m_Car.Move(h, v, v, handbrake);
+		}
 	}
 }

@@ -27,6 +27,7 @@ namespace UnityStandardAssets.Vehicles.Car
 					return;
 				}
 			} catch(NullReferenceException e) {
+				Debug.Log ("Merde");
 				// The network is not yet initialized, so just return
 				return;
 			}
