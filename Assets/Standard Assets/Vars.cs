@@ -44,7 +44,7 @@ public class Vars : MonoBehaviour {
 				}
 
 				if (manager.matchInfo != null) {
-					Debug.Log ("connecting client");
+					//Debug.Log ("connecting client");
 					//manager.StartClient();
 				}
 			} else {
