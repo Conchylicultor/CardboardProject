@@ -8,18 +8,57 @@ public class Vars : MonoBehaviour {
 	// The GUI with the wheel/car button
 	public Canvas canvas;
 
+	public static bool isInternet = false;
+
 	public bool isWheel = false;
+
+	private bool connectedToMatch = false;
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log ("start vars" + this.isWheel + " " + isInternet);
 		if (this.isWheel) {
-			// For LAN
-			manager.StartHost();
+			if (isInternet) {
+				Debug.Log ("Start the matchmaker");
+				manager.SetMatchHost("mm.unet.unity3d.com", 443, true);
+				manager.StartMatchMaker();
+				//manager.StartHost();
+			} else {
+				// For LAN
+				manager.StartHost();
+			}
 		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if (isInternet) {
+			if (!this.isWheel) {
+				if (manager.matchInfo == null && !connectedToMatch && manager.matches != null) {
+					var match = manager.matches [0];
+					manager.matchName = match.name;
+					manager.matchSize = (uint)match.currentSize;
+					manager.matchMaker.JoinMatch (match.networkId, "", manager.OnMatchJoined);
+
+					this.connectedToMatch = true;
+				}
+
+				if (manager.matchInfo != null) {
+					Debug.Log ("connecting client");
+					//manager.StartClient();
+				}
+			} else {
+				Debug.Log (manager.matchMaker);
+				if (manager.matchMaker == null) {
+					manager.StartMatchMaker();
+				}
+				if (manager.matchMaker != null && manager.matchInfo == null) {
+					if (manager.matches == null) {
+						manager.matchMaker.CreateMatch(manager.matchName, manager.matchSize, true, "", manager.OnMatchCreate);
+					}
+				}
+			}
+		}
 	}
 
 	public void setIsWheel(bool isWheel)
@@ -42,6 +81,15 @@ public class Vars : MonoBehaviour {
 		this.loadClientScene ();
 	}
 
+	public void makeWHeelInternet()
+	{
+		isInternet = true;
+
+		canvas.enabled = false;
+		this.setIsWheel (true);
+		this.loadClientScene ();
+	}
+
 	/**
 	 * Called when the User pressed the car button.
 	 **/
@@ -51,5 +99,17 @@ public class Vars : MonoBehaviour {
 		this.setIsWheel (false);
 
 		manager.StartClient();
+	}
+
+	public void makeCarInternet()
+	{
+		isInternet = true;
+		canvas.enabled = false;
+		this.setIsWheel (false);
+
+		manager.StartMatchMaker();
+		manager.SetMatchHost("mm.unet.unity3d.com", 443, true);
+		manager.matchMaker.ListMatches(0,20, "", manager.OnMatchList);
+
 	}
 }

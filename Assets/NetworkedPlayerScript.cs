@@ -9,12 +9,21 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 	private CarController m_Car;
 	private Vars vars;
 
+	private bool isWheel = false;
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("in start");
 
-		vars = GameObject.Find ("Vars").GetComponent<Vars> ();
-		if(!vars.isWheel)
+		var vars = GameObject.Find ("Vars");
+
+		if (vars == null) {
+			isWheel = true;
+		} else {
+			isWheel = false;
+		}
+
+		if(!isWheel)
 		{
 			Debug.Log ("is not a wheel");
 
@@ -31,10 +40,12 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 			return;
 		}
 
-		if (!vars.isWheel) 
+		if (!isWheel) 
 		{
 			return;
 		}
+
+		Debug.Log ("aant updaten in networkshit");
 			
 		float h = CrossPlatformInputManager.GetAxis("Horizontal");
 		float v = CrossPlatformInputManager.GetAxis("Vertical");
@@ -50,7 +61,7 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 	[ClientRpc]
 	void RpcLol(float h, float v, float handbrake)
 	{
-		if (!vars.isWheel) {
+		if (!isWheel) {
 			m_Car.Move(h, v, v, handbrake);
 		}
 	}
