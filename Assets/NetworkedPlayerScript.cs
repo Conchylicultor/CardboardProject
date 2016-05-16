@@ -13,8 +13,6 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Debug.Log ("in start");
-
 		var vars = GameObject.Find ("Vars");
 
 		if (vars == null) {
@@ -25,8 +23,6 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 
 		if(!isWheel)
 		{
-			Debug.Log ("is not a wheel");
-
 			// We are the car, so let's load the car in the local var
 			GameObject car = GameObject.Find ("Car");
 			m_Car = car.GetComponent<CarController>();
@@ -44,9 +40,7 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 		{
 			return;
 		}
-
-		Debug.Log ("aant updaten in networkshit");
-			
+						
 		float h = CrossPlatformInputManager.GetAxis("Horizontal");
 		float v = CrossPlatformInputManager.GetAxis("Vertical");
 		float handbrake = 0f;
