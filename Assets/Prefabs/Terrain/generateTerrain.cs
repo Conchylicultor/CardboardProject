@@ -24,8 +24,10 @@ public class generateTerrain : MonoBehaviour {
 	float nextDistance; // To make the next plateform appear (We can compare to the distance of the player to the plateform)
 
 	float radiusPlatform = 50.0f; // TODO: Extract that dynamically
-	float distanceBetweenPlateforms = 100.0f;
+	//float distanceBetweenPlateforms = 100.0f;
 	float roadLength = 20.0f;
+
+	int nbMaxFolderPlateform = 16;
 
 	System.Random random = new System.Random();
 
@@ -43,8 +45,13 @@ public class generateTerrain : MonoBehaviour {
 	List<DirectoryInfo> toList(DirectoryInfo[] array) {
 		List<DirectoryInfo> list = new List<DirectoryInfo>(array.Length + 1);
 
+		int i = 0;
 		foreach (DirectoryInfo t in array) {
-			list.Add (t);
+			if(i < nbMaxFolderPlateform)
+			{
+				list.Add (t);
+				i++;
+			}
 		}
 
 		return list;
@@ -154,7 +161,28 @@ public class generateTerrain : MonoBehaviour {
 		referencePlayer = GameObject.Find("Car"); // Get the player
 
 		// Loading the terrain
-		loadFolder(Application.dataPath, Vector3.zero);
+		string rootPath;
+		if (Application.platform == RuntimePlatform.Android) {
+
+			// Create some random text files
+			string path =  Application.persistentDataPath;
+			if (!File.Exists(path + "/tests.txt"))
+			{
+				File.Create(path + "/tests.txt");
+				File.Create(path + "/tests2.txt");
+				File.Create(path + "/tests3.txt");
+				File.Create(path + "/tests4.txt");
+				File.Create(path + "/tests5.txt");
+				File.Create(path + "/tests6.txt");
+				File.Create(path + "/tests7.txt");
+				File.Create(path + "/tests8.txt");
+			}
+			//rootPath = Application.persistentDataPath + "/../..";
+			rootPath = Application.persistentDataPath;
+		} else {
+			rootPath = Application.dataPath;
+		}
+		loadFolder(rootPath, Vector3.zero);
 		currentPlateform = nextPlateform; // We are currently on the platform we just created
 		nextPlateform = null; // Otherwise, the current platform could be destroyed when destroying this (when falling)
 	}
