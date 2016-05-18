@@ -14,6 +14,17 @@ public class Vars : MonoBehaviour {
 
 	private bool connectedToMatch = false;
 
+	void OnLevelWasLoaded(int level) {
+		Debug.Log ("yooolooo" + level);
+
+		// Car
+		if (level == 1) {
+		}
+		// Wheel
+		else if (level == 2) {
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("start vars" + this.isWheel + " " + isInternet);
@@ -25,6 +36,8 @@ public class Vars : MonoBehaviour {
 				//manager.StartHost();
 			} else {
 				// For LAN
+				Debug.Log ("Start LAN");
+
 				manager.StartHost();
 			}
 		}
@@ -50,13 +63,18 @@ public class Vars : MonoBehaviour {
 			} else {
 				Debug.Log (manager.matchMaker);
 				if (manager.matchMaker == null) {
-					manager.StartMatchMaker();
+					manager.StartMatchMaker ();
 				}
 				if (manager.matchMaker != null && manager.matchInfo == null) {
 					if (manager.matches == null) {
-						manager.matchMaker.CreateMatch(manager.matchName, manager.matchSize, true, "", manager.OnMatchCreate);
+						manager.matchMaker.CreateMatch (manager.matchName, manager.matchSize, true, "", manager.OnMatchCreate);
 					}
 				}
+			}
+		} else {
+			if (this.isWheel && !NetworkServer.active) {
+				Debug.Log ("Start LAN");
+				manager.StartHost();
 			}
 		}
 	}
@@ -76,6 +94,8 @@ public class Vars : MonoBehaviour {
 	 **/
 	public void makeWHeel()
 	{
+		isInternet = false;
+
 		canvas.enabled = false;
 		this.setIsWheel (true);
 		this.loadClientScene ();
@@ -95,6 +115,8 @@ public class Vars : MonoBehaviour {
 	 **/
 	public void makeCar()
 	{
+		isInternet = false;
+
 		canvas.enabled = false;
 		this.setIsWheel (false);
 
