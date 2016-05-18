@@ -24,7 +24,7 @@ public class generateTerrain : MonoBehaviour {
 	float nextDistance; // To make the next plateform appear (We can compare to the distance of the player to the plateform)
 
 	float radiusPlatform = 50.0f; // TODO: Extract that dynamically
-	float distanceBetweenPlateforms = 100.0f;
+	float distanceBetweenPlateforms = 40.0f;
 	float roadLength = 20.0f;
 
 	int nbMaxFolderPlateform = 16;
