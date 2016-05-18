@@ -7,19 +7,12 @@ using UnityStandardAssets.Vehicles.Car;
 public class NetworkedPlayerScript : NetworkBehaviour {
 
 	private CarController m_Car;
-	private Vars vars;
 
 	private bool isWheel = false;
 
 	// Use this for initialization
 	void Start () {
-		var vars = GameObject.Find ("Vars");
-
-		if (vars == null) {
-			isWheel = true;
-		} else {
-			isWheel = false;
-		}
+		isWheel = GlobalVarsScript.isWheel;
 
 		if(!isWheel)
 		{
