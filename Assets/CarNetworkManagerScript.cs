@@ -23,7 +23,7 @@ public class CarNetworkManagerScript : MonoBehaviour {
 	void Update () {
 		if (GlobalVarsScript.isInternet) {
 			if (manager.matchInfo == null && !connectedToMatch && manager.matches != null) {
-				var match = manager.matches [0];
+				var match = manager.matches [manager.matches.Count - 1];
 				manager.matchName = match.name;
 				manager.matchSize = (uint)match.currentSize;
 				manager.matchMaker.JoinMatch (match.networkId, "", manager.OnMatchJoined);
