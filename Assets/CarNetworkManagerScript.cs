@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using UnityEngine.Networking.Match;
+using System.Collections.Generic;
 
 public class CarNetworkManagerScript : MonoBehaviour {
 
@@ -23,7 +25,8 @@ public class CarNetworkManagerScript : MonoBehaviour {
 	void Update () {
 		if (GlobalVarsScript.isInternet) {
 			if (manager.matchInfo == null && !connectedToMatch && manager.matches != null) {
-				var match = manager.matches [manager.matches.Count - 1];
+				MatchDesc match = manager.matches [manager.matches.Count - 1];
+
 				manager.matchName = match.name;
 				manager.matchSize = (uint)match.currentSize;
 				manager.matchMaker.JoinMatch (match.networkId, "", manager.OnMatchJoined);

@@ -6,6 +6,8 @@ public class WheelNetworkManagerScript : MonoBehaviour {
 
 	public NetworkManager manager;
 
+	private bool matchCreated = false;
+
 	// Use this for initialization
 	void Start () {
 		if (GlobalVarsScript.isInternet) {
@@ -29,8 +31,9 @@ public class WheelNetworkManagerScript : MonoBehaviour {
 				manager.StartMatchMaker ();
 			}
 			if (manager.matchMaker != null && manager.matchInfo == null) {
-				if (manager.matches == null) {
+				if (manager.matches == null && matchCreated == false) {
 					manager.matchMaker.CreateMatch (manager.matchName, manager.matchSize, true, "", manager.OnMatchCreate);
+					matchCreated = true;
 				}
 			}
 		} else {
