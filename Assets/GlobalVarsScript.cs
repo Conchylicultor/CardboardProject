@@ -23,14 +23,14 @@ public class GlobalVarsScript : MonoBehaviour {
 
 		Debug.Log ("??");
 
-		Application.LoadLevel("clientScene");
+		Application.LoadLevel("wheelScene");
 	}
 
 	public void startWheelLocal(){
 		isInternet = false;
 		isWheel = true;
 
-		Application.LoadLevel("clientScene");
+		Application.LoadLevel("wheelScene");
 	}
 
 	public void startCarInternet(){
