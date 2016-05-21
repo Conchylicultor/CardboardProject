@@ -42,11 +42,11 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 #else
 		//m_Car.Move(h, v, v, 0f);
 #endif
-		RpcLol(h, v, handbrake);
+		RpcControlCar(h, v, handbrake);
 	}
 
 	[ClientRpc]
-	void RpcLol(float h, float v, float handbrake)
+	void RpcControlCar(float h, float v, float handbrake)
 	{
 		if (!isWheel) {
 			m_Car.Move(h, v, v, handbrake);
