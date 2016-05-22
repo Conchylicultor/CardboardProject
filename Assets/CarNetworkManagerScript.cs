@@ -23,15 +23,18 @@ public class CarNetworkManagerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		/**
 		if (GlobalVarsScript.isInternet) {
 			if (manager.matchInfo == null && !connectedToMatch && manager.matches != null) {
-				MatchDesc match = manager.matches [manager.matches.Count - 1];
+				if (manager.matches.Count > 0) {
+					MatchDesc match = manager.matches [manager.matches.Count - 1];
 
-				manager.matchName = match.name;
-				manager.matchSize = (uint)match.currentSize;
-				manager.matchMaker.JoinMatch (match.networkId, "", manager.OnMatchJoined);
+					manager.matchName = match.name;
+					manager.matchSize = (uint)match.currentSize;
+					manager.matchMaker.JoinMatch (match.networkId, "", manager.OnMatchJoined);
 
-				this.connectedToMatch = true;
+					this.connectedToMatch = true;   
+				}
 			}
 
 			if (manager.matchInfo != null) {
@@ -39,5 +42,6 @@ public class CarNetworkManagerScript : MonoBehaviour {
 				//manager.StartClient();
 			}
 		}
+		**/  
 	}
 }

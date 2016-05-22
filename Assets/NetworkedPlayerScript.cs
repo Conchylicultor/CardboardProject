@@ -19,6 +19,8 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 			// We are the car, so let's load the car in the local var
 			GameObject car = GameObject.Find ("Car");
 			m_Car = car.GetComponent<CarController>();
+
+			Debug.Log ("done setting car");
 		}
 	}
 	
@@ -33,6 +35,8 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 		{
 			return;
 		}
+
+		Debug.Log ("sending");
 						
 		float h = CrossPlatformInputManager.GetAxis("Horizontal");
 		float v = CrossPlatformInputManager.GetAxis("Vertical");
@@ -42,14 +46,17 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 #else
 		//m_Car.Move(h, v, v, 0f);
 #endif
+
 		RpcControlCar(h, v, handbrake);
 	}
 
 	[ClientRpc]
 	void RpcControlCar(float h, float v, float handbrake)
 	{
-		if (!isWheel) {
+		//Debug.Log ("rijden toet toet");
+		if (!isWheel && m_Car) {
 			m_Car.Move(h, v, v, handbrake);
+			//Debug.Log ("rijden toet toet 123 " + h + " " + v + " " + handbrake);
 		}
 	}
 }

@@ -18,20 +18,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
 
         private void FixedUpdate()
-        {
-			GameObject go = GameObject.Find ("Vars");
-			try {
-				go.GetComponent<Vars> ();
-				if(!go.GetComponent<Vars> ().isWheel)
-				{
-					return;
-				}
-			} catch(NullReferenceException e) {
-				Debug.Log ("Merde");
-				// The network is not yet initialized, so just return
-				return;
-			}
-			
+        {			
+			return;
             // pass the input to the car!
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
             float v = CrossPlatformInputManager.GetAxis("Vertical");
