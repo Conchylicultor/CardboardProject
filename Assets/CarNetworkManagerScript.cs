@@ -17,6 +17,7 @@ public class CarNetworkManagerScript : MonoBehaviour {
 			manager.SetMatchHost ("mm.unet.unity3d.com", 443, true);
 			manager.matchMaker.ListMatches (0, 20, "", manager.OnMatchList);
 		} else {
+			manager.networkAddress = "192.168.43.1";
 			manager.StartClient ();
 		}
 	}

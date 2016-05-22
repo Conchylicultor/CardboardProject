@@ -36,7 +36,7 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 			return;
 		}
 
-		Debug.Log ("sending");
+		//Debug.Log ("sending");
 						
 		float h = CrossPlatformInputManager.GetAxis("Horizontal");
 		float v = CrossPlatformInputManager.GetAxis("Vertical");
@@ -56,7 +56,7 @@ public class NetworkedPlayerScript : NetworkBehaviour {
 		//Debug.Log ("rijden toet toet");
 		if (!isWheel && m_Car) {
 			m_Car.Move(h, v, v, handbrake);
-			//Debug.Log ("rijden toet toet 123 " + h + " " + v + " " + handbrake);
+			//Debug.Log ("rijden toet toet 123 ");
 		}
 	}
 }
